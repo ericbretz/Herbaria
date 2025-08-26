@@ -617,7 +617,7 @@ def create_concatenated_representative_plots(output_dir, plot_types):
     
     available_plots = ordered_plots
     
-    fig, axes = plt.subplots(4, 3, figsize=(24, 36))
+    fig, axes = plt.subplots(4, 3, figsize=(26, 36))
     
     # plot_labels = {
     #     'busco': 'BUSCO Scores',
