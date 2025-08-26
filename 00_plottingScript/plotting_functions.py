@@ -6,6 +6,9 @@ import re
 import multiprocessing as mp
 from plotting_config import *
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(os.path.dirname(SCRIPT_DIR))
+
 def get_sample_type(sample):
     return SAMPLE_TYPES.get(sample, 'unknown')
 
@@ -163,7 +166,7 @@ def plot_deamination_representative(output_dir):
     
     for i, sample in enumerate(REPRESENTATIVE_SAMPLES):
         ax = axes[i]
-        file_path = f'00_deamination/01_data/{sample}/misincorporation.txt'
+        file_path = os.path.join(ROOT_DIR, 'FINALdata', 'deamination_data', sample, 'misincorporation.txt')
         
         try:
             plot_data = get_deamination_plot_data(file_path)
@@ -218,9 +221,9 @@ def plot_inserts_representative(output_dir):
         ax = axes[i]
         
         if sample.startswith('WA'):
-            file_path = f'00_inserts/01_data/{sample}_paired.csv'
+            file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}_paired.csv')
         else:
-            file_path = f'00_inserts/01_data/{sample}.csv'
+            file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}.csv')
         
         try:
             df = pd.read_csv(file_path)
@@ -271,7 +274,7 @@ def plot_transrate_representative(output_dir):
     
     for i, sample in enumerate(REPRESENTATIVE_SAMPLES):
         ax = axes[i]
-        file_path = f'00_transrate_plots/01_data/tr2_assembly/{sample}.csv'
+        file_path = os.path.join(ROOT_DIR, 'FINALdata', 'transrate_data', 'tr2_assembly', f'{sample}.csv')
         
         try:
             df = pd.read_csv(file_path)
@@ -373,7 +376,7 @@ def plot_deamination_individual_worker(args):
     deamination_dir = os.path.join(output_dir, 'deamination')
     os.makedirs(deamination_dir, exist_ok=True)
     
-    file_path = f'00_deamination/01_data/{sample}/misincorporation.txt'
+    file_path = os.path.join(ROOT_DIR, 'FINALdata', 'deamination_data', sample, 'misincorporation.txt')
     
     if not os.path.exists(file_path):
         return f"Warning: {file_path} not found, skipping {sample}"
@@ -426,9 +429,9 @@ def plot_inserts_individual_worker(args):
     os.makedirs(inserts_dir, exist_ok=True)
     
     if sample.startswith('WA'):
-        file_path = f'00_inserts/01_data/{sample}_paired.csv'
+        file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}_paired.csv')
     else:
-        file_path = f'00_inserts/01_data/{sample}.csv'
+        file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}.csv')
     
     if not os.path.exists(file_path):
         return f"Warning: {file_path} not found, skipping {sample}"
@@ -477,7 +480,7 @@ def plot_transrate_individual_worker(args):
     transrate_dir = os.path.join(output_dir, 'transrate')
     os.makedirs(transrate_dir, exist_ok=True)
     
-    file_path = f'00_transrate_plots/01_data/tr2_assembly/{sample}.csv'
+    file_path = os.path.join(ROOT_DIR, 'FINALdata', 'transrate_data', 'tr2_assembly', f'{sample}.csv')
     
     if not os.path.exists(file_path):
         return f"Warning: {file_path} not found, skipping {sample}"
@@ -586,10 +589,10 @@ def create_concatenated_representative_plots(output_dir, plot_types):
     
     available_plots = []
     plot_files = {
-        'busco': os.path.join(output_dir, 'busco', 'busco_representative.png'),
         'deamination': os.path.join(output_dir, 'deamination', 'deamination_representative.png'),
         'inserts': os.path.join(output_dir, 'inserts', 'inserts_representative.png'),
-        'transrate': os.path.join(output_dir, 'transrate', 'transrate_representative.png')
+        'transrate': os.path.join(output_dir, 'transrate', 'transrate_representative.png'),
+        'busco': os.path.join(output_dir, 'busco', 'busco_representative.png')
     }
     
     for plot_type in plot_types:
@@ -600,6 +603,20 @@ def create_concatenated_representative_plots(output_dir, plot_types):
         print("  Not enough representative plots to concatenate")
         return
     
+    # Reorder available_plots to ensure correct sequence: deamination, inserts, transrate, busco
+    desired_order = ['deamination', 'inserts', 'transrate', 'busco']
+    ordered_plots = []
+    for plot_type in desired_order:
+        if plot_type in available_plots:
+            ordered_plots.append(plot_type)
+    
+    # Add any remaining plot types that weren't in the desired order
+    for plot_type in available_plots:
+        if plot_type not in ordered_plots:
+            ordered_plots.append(plot_type)
+    
+    available_plots = ordered_plots
+    
     fig, axes = plt.subplots(4, 3, figsize=(24, 32))
     
     # plot_labels = {
@@ -608,19 +625,12 @@ def create_concatenated_representative_plots(output_dir, plot_types):
     #     'inserts': 'Insert Length Distributions',
     #     'transrate': 'Transrate2 Assembly Scores'
     # }
-    
-    plot_labels = {
-        'busco': 'A',
-        'deamination': 'B', 
-        'inserts': 'C',
-        'transrate': 'D'
-    }
 
     representative_samples = {
-        'busco': ['DAL192', 'WA13', 'WA22'],
         'deamination': ['DAL192', 'WA13', 'WA22'],
         'inserts': ['DAL192', 'WA13', 'WA22'],
-        'transrate': ['DAL192', 'WA13', 'WA22']
+        'transrate': ['DAL192', 'WA13', 'WA22'],
+        'busco': ['DAL192', 'WA13', 'WA22']
     }
     
     for row_idx, plot_type in enumerate(available_plots):
@@ -654,11 +664,24 @@ def create_concatenated_representative_plots(output_dir, plot_types):
         if plot_type not in plot_files or not os.path.exists(plot_files[plot_type]):
             continue
         
-        pos = axes[row_idx, 1].get_position()
-        row_center_y = pos.y0 + (pos.y1 - pos.y0) / 2
+        pos = axes[row_idx, 0].get_position()
+        row_top_y = pos.y1 - 0.02
         
-        fig.text(0.05, row_center_y, plot_labels[plot_type], 
-                fontsize=48, fontweight='bold', ha='center', va='center', rotation=0)
+        fig.text(0.02, row_top_y, chr(65 + row_idx), 
+                fontsize=48, fontweight='bold', ha='center', va='top', rotation=0)
+        
+        row_center_y = pos.y0 + (pos.y1 - pos.y0) / 2 
+        row_titles = {
+            'deamination': 'Deamination',
+            'inserts': 'Insert Length', 
+            'transrate': 'TransRate2',
+            'busco': 'BUSCO'
+        }
+        
+        title_x = pos.x0 - 0.08
+        
+        fig.text(title_x, row_center_y, row_titles[plot_type], 
+                fontsize=24, fontweight='bold', ha='center', va='center', rotation=90)
     
     output_file = os.path.join(output_dir, 'representative_plots_concatenated.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
@@ -713,7 +736,7 @@ def create_busco_individual_plot(ax, sample, output_dir):
                 ha='center', va='center', transform=ax.transAxes, fontsize=16)
 
 def create_deamination_individual_plot(ax, sample, output_dir):
-    file_path = f'00_deamination/01_data/{sample}/misincorporation.txt'
+    file_path = os.path.join(ROOT_DIR, 'FINALdata', 'deamination_data', sample, 'misincorporation.txt')
     
     if not os.path.exists(file_path):
         ax.text(0.5, 0.5, f'File not found\n{sample}', 
@@ -758,9 +781,9 @@ def create_deamination_individual_plot(ax, sample, output_dir):
 
 def create_inserts_individual_plot(ax, sample, output_dir):
     if sample.startswith('WA'):
-        file_path = f'00_inserts/01_data/{sample}_paired.csv'
+        file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}_paired.csv')
     else:
-        file_path = f'00_inserts/01_data/{sample}.csv'
+        file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}.csv')
     
     if not os.path.exists(file_path):
         ax.text(0.5, 0.5, f'File not found\n{sample}', 
@@ -801,7 +824,7 @@ def create_inserts_individual_plot(ax, sample, output_dir):
                 ha='center', va='center', transform=ax.transAxes, fontsize=16)
 
 def create_transrate_individual_plot(ax, sample, output_dir):
-    file_path = f'00_transrate_plots/01_data/tr2_assembly/{sample}.csv'
+    file_path = os.path.join(ROOT_DIR, 'FINALdata', 'transrate_data', 'tr2_assembly', f'{sample}.csv')
     
     if not os.path.exists(file_path):
         ax.text(0.5, 0.5, f'File not found\n{sample}', 
