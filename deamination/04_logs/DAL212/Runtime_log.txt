@@ -1,0 +1,8 @@
+2025-06-29 13:42:12,276 mapdamage.main INFO Started with the command: /usr/local/bin/mapDamage -i DAL212/transrate2/nuclear/DAL212.cds.postSample.sorted.bam -r DAL212/DAL212.cds.fa -d deamination/DAL212 --merge-libraries
+2025-06-29 13:42:12,305 mapdamage.reader INFO Found 1 libraries in BAM file
+2025-06-29 13:42:12,325 mapdamage.main INFO Reading from 'DAL212/transrate2/nuclear/DAL212.cds.postSample.sorted.bam'
+2025-06-29 13:42:12,325 mapdamage.main INFO Writing results to 'deamination/DAL212/'
+2025-06-29 13:42:28,300 mapdamage.main INFO Started with the command: /usr/local/bin/mapDamage -i DAL212/transrate2/nuclear/DAL212.cds.postSample.sorted.bam -r DAL212/DAL212.cds.fa -d deamination/DAL212 --merge-libraries
+2025-06-29 13:42:28,334 mapdamage.reader INFO Found 1 libraries in BAM file
+2025-06-29 13:42:28,354 mapdamage.main INFO Reading from 'DAL212/transrate2/nuclear/DAL212.cds.postSample.sorted.bam'
+2025-06-29 13:42:28,354 mapdamage.main INFO Writing results to 'deamination/DAL212/'

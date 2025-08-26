@@ -1,0 +1,6 @@
+Metric,Value,Description
+Average,0.00034893039208053997,Mean frequency of A>G substitutions
+Median,0.0003080520724233,Median frequency of A>G substitutions
+Max,0.0012162130426171,Maximum frequency of A>G substitutions
+Min,1.1057224206720949e-06,Minimum frequency of A>G substitutions
+Std,0.0002660888664061539,Standard deviation of A>G substitution frequencies

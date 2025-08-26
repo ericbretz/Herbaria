@@ -1,0 +1,6 @@
+Metric,Value,Description
+Average,0.0003675982406753166,Mean frequency of C>T substitutions
+Median,0.00033718066401259997,Median frequency of C>T substitutions
+Max,0.0013612009566697,Maximum frequency of C>T substitutions
+Min,8.787549097434826e-07,Minimum frequency of C>T substitutions
+Std,0.00028768104765286876,Standard deviation of C>T substitution frequencies

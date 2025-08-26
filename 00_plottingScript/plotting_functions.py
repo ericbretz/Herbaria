@@ -602,13 +602,20 @@ def create_concatenated_representative_plots(output_dir, plot_types):
     
     fig, axes = plt.subplots(4, 3, figsize=(24, 32))
     
-    plot_labels = {
-        'busco': 'BUSCO Scores',
-        'deamination': 'Deamination Patterns', 
-        'inserts': 'Insert Length Distributions',
-        'transrate': 'Transrate2 Assembly Scores'
-    }
+    # plot_labels = {
+    #     'busco': 'BUSCO Scores',
+    #     'deamination': 'Deamination Patterns', 
+    #     'inserts': 'Insert Length Distributions',
+    #     'transrate': 'Transrate2 Assembly Scores'
+    # }
     
+    plot_labels = {
+        'busco': 'A',
+        'deamination': 'B', 
+        'inserts': 'C',
+        'transrate': 'D'
+    }
+
     representative_samples = {
         'busco': ['DAL192', 'WA13', 'WA22'],
         'deamination': ['DAL192', 'WA13', 'WA22'],
@@ -619,10 +626,6 @@ def create_concatenated_representative_plots(output_dir, plot_types):
     for row_idx, plot_type in enumerate(available_plots):
         if plot_type not in plot_files or not os.path.exists(plot_files[plot_type]):
             continue
-            
-        row_center = 0.875 - row_idx * 0.25
-        fig.text(0.05, row_center, plot_labels[plot_type], 
-                fontsize=24, fontweight='bold', ha='center', va='center', rotation=90)
         
         for col_idx, sample in enumerate(representative_samples[plot_type]):
             ax = axes[row_idx, col_idx]
@@ -645,7 +648,17 @@ def create_concatenated_representative_plots(output_dir, plot_types):
         for col_idx in range(3):
             axes[row_idx, col_idx].axis('off')
     
-    plt.tight_layout(pad=10.0, h_pad=1.0, w_pad=1.0)
+    plt.tight_layout(pad=12.0, h_pad=1.0, w_pad=1.0)
+    
+    for row_idx, plot_type in enumerate(available_plots):
+        if plot_type not in plot_files or not os.path.exists(plot_files[plot_type]):
+            continue
+        
+        pos = axes[row_idx, 1].get_position()
+        row_center_y = pos.y0 + (pos.y1 - pos.y0) / 2
+        
+        fig.text(0.05, row_center_y, plot_labels[plot_type], 
+                fontsize=48, fontweight='bold', ha='center', va='center', rotation=0)
     
     output_file = os.path.join(output_dir, 'representative_plots_concatenated.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')

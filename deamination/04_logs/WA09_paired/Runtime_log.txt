@@ -1,0 +1,8 @@
+2025-06-29 13:42:12,376 mapdamage.main INFO Started with the command: /usr/local/bin/mapDamage -i WA09/transrate2/nuclear/WA09_paired.cds.postSample.sorted.bam -r WA09/WA09_paired.cds.fa -d deamination/WA09_paired --merge-libraries
+2025-06-29 13:42:12,423 mapdamage.reader INFO Found 1 libraries in BAM file
+2025-06-29 13:42:12,450 mapdamage.main INFO Reading from 'WA09/transrate2/nuclear/WA09_paired.cds.postSample.sorted.bam'
+2025-06-29 13:42:12,450 mapdamage.main INFO Writing results to 'deamination/WA09_paired/'
+2025-06-29 13:42:28,447 mapdamage.main INFO Started with the command: /usr/local/bin/mapDamage -i WA09/transrate2/nuclear/WA09_paired.cds.postSample.sorted.bam -r WA09/WA09_paired.cds.fa -d deamination/WA09_paired --merge-libraries
+2025-06-29 13:42:28,521 mapdamage.reader INFO Found 1 libraries in BAM file
+2025-06-29 13:42:28,564 mapdamage.main INFO Reading from 'WA09/transrate2/nuclear/WA09_paired.cds.postSample.sorted.bam'
+2025-06-29 13:42:28,564 mapdamage.main INFO Writing results to 'deamination/WA09_paired/'
