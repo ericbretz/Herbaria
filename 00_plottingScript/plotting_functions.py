@@ -134,7 +134,7 @@ def plot_busco_representative(output_dir):
             category_labels = ['Complete\nSingle-copy', 'Complete\nDuplicated', 'Fragmented', 'Missing']
             for bar, label in zip(bars, category_labels):
                 ax.text(bar.get_x() + bar.get_width()/2., -5, label, 
-                        ha='center', va='top', fontsize=22, rotation=45, color='black')
+                        ha='center', va='top', fontsize=22, rotation=90, color='black')
             
             ax.set_title(f'{get_real_sample_name(sample)}', fontsize=18, fontweight='bold')
             ax.set_ylim(0, 100)
@@ -617,7 +617,7 @@ def create_concatenated_representative_plots(output_dir, plot_types):
     
     available_plots = ordered_plots
     
-    fig, axes = plt.subplots(4, 3, figsize=(24, 32))
+    fig, axes = plt.subplots(4, 3, figsize=(24, 36))
     
     # plot_labels = {
     #     'busco': 'BUSCO Scores',
@@ -658,17 +658,17 @@ def create_concatenated_representative_plots(output_dir, plot_types):
         for col_idx in range(3):
             axes[row_idx, col_idx].axis('off')
     
-    plt.tight_layout(pad=12.0, h_pad=1.0, w_pad=1.0)
+    plt.tight_layout(pad=12.0, h_pad=1.0, w_pad=1.0, rect=[0.05, 0.05, 0.95, 0.95])
     
     for row_idx, plot_type in enumerate(available_plots):
         if plot_type not in plot_files or not os.path.exists(plot_files[plot_type]):
             continue
         
         pos = axes[row_idx, 0].get_position()
-        row_top_y = pos.y1 - 0.02
+        row_top_y = pos.y1 - 0.01
         
-        fig.text(0.02, row_top_y, chr(65 + row_idx), 
-                fontsize=60, fontweight='bold', ha='center', va='top', rotation=0)
+        fig.text(0.08, row_top_y, chr(65 + row_idx), 
+                fontsize=48, fontweight='bold', ha='center', va='top', rotation=0)
         
         row_center_y = pos.y0 + (pos.y1 - pos.y0) / 2 
         row_titles = {
@@ -715,7 +715,7 @@ def create_busco_individual_plot(ax, sample, output_dir):
         bars = ax.bar(categories, percentages, color=colors, alpha=0.8)
         
         ax.set_xticks(range(len(categories)))
-        ax.set_xticklabels(category_labels)
+        ax.set_xticklabels(category_labels, rotation=90, ha='center')
         
         for bar, percentage in zip(bars, percentages):
             height = bar.get_height()
@@ -724,10 +724,9 @@ def create_busco_individual_plot(ax, sample, output_dir):
         
         ax.set_title(f'{get_real_sample_name(sample)}', fontsize=24, fontweight='bold')
         ax.set_ylim(0, 100)
-        ax.tick_params(axis='x', labelsize=20)
+        ax.tick_params(axis='x', labelsize=18)
         ax.tick_params(axis='y', labelsize=20)
         ax.set_ylabel('Percentage (%)', fontsize=22, labelpad=10)
-        ax.tick_params(axis='x', labelsize=18)
         ax.grid(True, alpha=0.3, axis='y')
         ax.set_yticks([0, 20, 40, 60, 80, 100])
         
