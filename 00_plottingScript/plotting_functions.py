@@ -19,6 +19,40 @@ def get_real_sample_name(sample):
         return '$\\boldsymbol{' + genus + '}$-' + sample_type
     return name
 
+def get_max_insert_y_value():
+    """Calculate the maximum y value across all insert plots for consistent scaling."""
+    max_y = 0
+    
+    for sample in SAMPLES.keys():
+        try:
+            if sample.startswith('WA'):
+                file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}_paired.csv')
+            else:
+                file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}.csv')
+            
+            if os.path.exists(file_path):
+                df = pd.read_csv(file_path)
+                df_filtered = df[df['insert_length'] >= 1].copy()
+                
+                insert_length_counts = df_filtered['insert_length'].value_counts().sort_index()
+                x = insert_length_counts.index.values
+                y = insert_length_counts.values
+                
+                mask_pos = (x >= 1) & (x <= 800)
+                
+                if np.any(mask_pos):
+                    sample_max_y = np.max(y[mask_pos])
+                    max_y = max(max_y, sample_max_y)
+                    
+        except Exception as e:
+            print(f"Warning: Could not process {sample} for max y calculation: {e}")
+            continue
+    
+    if max_y > 0:
+        max_y = max_y + max_y * 0.1
+    
+    return max_y
+
 def extract_busco_data(file_path):
     try:
         with open(file_path, 'r') as f:
@@ -65,10 +99,10 @@ def extract_busco_data(file_path):
         print(f"Error extracting BUSCO data from {file_path}: {e}")
         return None
 
-def get_deamination_plot_data(sample_file):    
+def get_deamination_plot_data(file_path):    
     def get_data(end, std, col):
         try:
-            df = pd.read_csv(sample_file, sep='\t')
+            df = pd.read_csv(file_path, sep='\t')
             filtered_df = df[(df['End'] == end) & (df['Std'] == std)]
             return filtered_df[col].head(25).tolist()
         except Exception as e:
@@ -219,6 +253,9 @@ def plot_inserts_representative(output_dir):
     inserts_dir = os.path.join(output_dir, 'inserts')
     os.makedirs(inserts_dir, exist_ok=True)
     
+    # Pre-calculate max y value once for all plots
+    max_y = get_max_insert_y_value()
+    
     fig, axes = plt.subplots(1, 3, figsize=(24, 8))
     
     for i, sample in enumerate(REPRESENTATIVE_SAMPLES):
@@ -242,10 +279,10 @@ def plot_inserts_representative(output_dir):
             if np.any(mask_pos):
                 ax.plot(x[mask_pos], y[mask_pos], color='#000000', linewidth=3, label='insert')
             
-            sample_name = f'{get_real_sample_name(sample)} ({get_sample_type(sample).title()})'
+            sample_name = f'{get_real_sample_name(sample)}'
             ax.set_title(sample_name, fontsize=20, fontweight='bold')
             ax.set_xlim(1, 800)
-            ax.set_ylim(-1, np.max(y[mask_pos]) + np.max(y[mask_pos]) * 0.1)
+            ax.set_ylim(-1, max_y)
             
             ax.set_xticks([1] + list(np.arange(100, 800 + 1, 100)))
             ax.tick_params(axis='x', rotation=45, labelsize=22)
@@ -301,7 +338,7 @@ def plot_transrate_representative(output_dir):
                 ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
                         f'{score:.3f}', ha='center', va='bottom', fontsize=18, fontweight='bold')
             
-            sample_name = f'{get_real_sample_name(sample)} ({get_sample_type(sample).title()})'
+            sample_name = f'{get_real_sample_name(sample)}'
             ax.set_title(sample_name, fontsize=20, fontweight='bold')
             ax.set_ylim(0, 1.1)
             
@@ -398,7 +435,7 @@ def plot_deamination_individual_worker(args):
         ax.plot(x_3p, plot_data['3p_AtoG'], color='#56B4E9', linewidth=2, alpha=0.8)
         ax.plot(x_3p, plot_data['3p_CtoT'], color='#F04442', linewidth=2, alpha=0.8)
         
-        ax.set_title(f'{get_real_sample_name(sample)} Deamination Pattern ({get_sample_type(sample).title()})', fontsize=14, fontweight='bold')
+        ax.set_title(f'{get_real_sample_name(sample)} Deamination Pattern', fontsize=14, fontweight='bold')
         ax.set_ylim(0.00, 0.002)
         ax.set_yticks([0.0000, 0.0004, 0.0008, 0.0012, 0.0016, 0.0020])
         ax.set_xlim(-25.5, 25.5)
@@ -427,7 +464,7 @@ def plot_deamination_individual_worker(args):
         return f"Error processing {sample}: {e}"
 
 def plot_inserts_individual_worker(args):
-    sample, output_dir = args
+    sample, output_dir, max_y = args
     
     inserts_dir = os.path.join(output_dir, 'inserts')
     os.makedirs(inserts_dir, exist_ok=True)
@@ -455,9 +492,9 @@ def plot_inserts_individual_worker(args):
         if np.any(mask_pos):
             ax.plot(x[mask_pos], y[mask_pos], color='#000000', linewidth=2, label='insert')
         
-        ax.set_title(f'{get_real_sample_name(sample)} insert Length Distribution ({get_sample_type(sample).title()})', fontsize=14, fontweight='bold')
+        ax.set_title(f'{get_real_sample_name(sample)} insert Length Distribution', fontsize=14, fontweight='bold')
         ax.set_xlim(1, 800)
-        ax.set_ylim(-1, np.max(y[mask_pos]) + np.max(y[mask_pos]) * 0.1)
+        ax.set_ylim(-1, max_y)
         
         ax.set_xticks([1] + list(np.arange(100, 800 + 1, 100)))
         ax.tick_params(axis='x', rotation=45, labelsize=10)
@@ -512,7 +549,7 @@ def plot_transrate_individual_worker(args):
             ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
                     f'{score:.3f}', ha='center', va='bottom', fontsize=12, fontweight='bold')
         
-        ax.set_title(f'{get_real_sample_name(sample)} Transrate2 Scores ({get_sample_type(sample).title()})', fontsize=14, fontweight='bold')
+        ax.set_title(f'{get_real_sample_name(sample)} Transrate2 Scores', fontsize=14, fontweight='bold')
         ax.set_ylim(0, 1.1)
         
         ax.set_xticks(x_pos)
@@ -566,7 +603,10 @@ def plot_inserts_individual(output_dir, num_processes=40):
     inserts_dir = os.path.join(output_dir, 'inserts')
     os.makedirs(inserts_dir, exist_ok=True)
     
-    args_list = [(sample, output_dir) for sample in SAMPLES.keys()]
+    # Pre-calculate max y value once for all plots
+    max_y = get_max_insert_y_value()
+    
+    args_list = [(sample, output_dir, max_y) for sample in SAMPLES.keys()]
     
     with mp.Pool(processes=num_processes) as pool:
         results = pool.map(plot_inserts_individual_worker, args_list)
@@ -607,14 +647,17 @@ def create_concatenated_representative_plots(output_dir, plot_types):
         print("  Not enough representative plots to concatenate")
         return
     
-    # Reorder available_plots to ensure correct sequence: deamination, inserts, transrate, busco
+    # Pre-calculate max y value for insert plots if needed
+    max_y = None
+    if 'inserts' in available_plots:
+        max_y = get_max_insert_y_value()
+    
     desired_order = ['deamination', 'inserts', 'transrate', 'busco']
     ordered_plots = []
     for plot_type in desired_order:
         if plot_type in available_plots:
             ordered_plots.append(plot_type)
     
-    # Add any remaining plot types that weren't in the desired order
     for plot_type in available_plots:
         if plot_type not in ordered_plots:
             ordered_plots.append(plot_type)
@@ -650,7 +693,7 @@ def create_concatenated_representative_plots(output_dir, plot_types):
                 elif plot_type == 'deamination':
                     create_deamination_individual_plot(ax, sample, output_dir)
                 elif plot_type == 'inserts':
-                    create_inserts_individual_plot(ax, sample, output_dir)
+                    create_inserts_individual_plot(ax, sample, output_dir, max_y)
                 elif plot_type == 'transrate':
                     create_transrate_individual_plot(ax, sample, output_dir)
             except Exception as e:
@@ -782,7 +825,7 @@ def create_deamination_individual_plot(ax, sample, output_dir):
         ax.text(0.5, 0.5, f'Error processing\n{sample}', 
                 ha='center', va='center', transform=ax.transAxes, fontsize=24)
 
-def create_inserts_individual_plot(ax, sample, output_dir):
+def create_inserts_individual_plot(ax, sample, output_dir, max_y):
     if sample.startswith('WA'):
         file_path = os.path.join(ROOT_DIR, 'FINALdata', 'inserts_data', f'{sample}_paired.csv')
     else:
@@ -811,7 +854,7 @@ def create_inserts_individual_plot(ax, sample, output_dir):
         
         ax.set_title(f'{get_real_sample_name(sample)}', fontsize=24, fontweight='bold')
         ax.set_xlim(lower_bound, upper_bound)
-        ax.set_ylim(-1, np.max(y[mask_pos]) + np.max(y[mask_pos]) * 0.1)
+        ax.set_ylim(-1, max_y)
         
         ax.set_xticks([1] + list(np.arange(100, upper_bound + 1, 100)))
         ax.tick_params(axis='x', rotation=45, labelsize=20)
