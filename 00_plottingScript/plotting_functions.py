@@ -13,7 +13,11 @@ def get_sample_type(sample):
     return SAMPLE_TYPES.get(sample, 'unknown')
 
 def get_real_sample_name(sample):
-    return SAMPLE_NAMES.get(sample, sample)
+    name = SAMPLE_NAMES.get(sample, sample)
+    if '-' in name:
+        genus, sample_type = name.split('-', 1)
+        return '$\\boldsymbol{' + genus + '}$-' + sample_type
+    return name
 
 def extract_busco_data(file_path):
     try:

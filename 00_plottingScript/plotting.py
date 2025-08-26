@@ -16,7 +16,7 @@ def main():
                        default='busco,deamination,inserts,transrate',
                        help='Comma-separated list of plot types to generate (default: all)')
     parser.add_argument('--output-dir', 
-                       default='01_all_plots',
+                       default='/home/eric/scratch/Herbaria/FINAL/01_all_plots',
                        help='Output directory for all plots (default: all_plots)')
     parser.add_argument('--representative-only', 
                        action='store_true',
