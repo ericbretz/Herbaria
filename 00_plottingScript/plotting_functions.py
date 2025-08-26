@@ -624,7 +624,7 @@ def create_concatenated_representative_plots(output_dir, plot_types):
     #     'deamination': 'Deamination Patterns', 
     #     'inserts': 'Insert Length Distributions',
     #     'transrate': 'Transrate2 Assembly Scores'
-    # }
+    # }111
 
     representative_samples = {
         'deamination': ['DAL192', 'WA13', 'WA22'],
