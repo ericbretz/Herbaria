@@ -668,7 +668,7 @@ def create_concatenated_representative_plots(output_dir, plot_types):
         row_top_y = pos.y1 - 0.02
         
         fig.text(0.02, row_top_y, chr(65 + row_idx), 
-                fontsize=48, fontweight='bold', ha='center', va='top', rotation=0)
+                fontsize=60, fontweight='bold', ha='center', va='top', rotation=0)
         
         row_center_y = pos.y0 + (pos.y1 - pos.y0) / 2 
         row_titles = {
@@ -681,7 +681,7 @@ def create_concatenated_representative_plots(output_dir, plot_types):
         title_x = pos.x0 - 0.08
         
         fig.text(title_x, row_center_y, row_titles[plot_type], 
-                fontsize=24, fontweight='bold', ha='center', va='center', rotation=90)
+                fontsize=32, fontweight='bold', ha='center', va='center', rotation=90)
     
     output_file = os.path.join(output_dir, 'representative_plots_concatenated.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
@@ -704,7 +704,7 @@ def create_busco_individual_plot(ax, sample, output_dir):
         busco_data = extract_busco_data(file_path)
         if busco_data is None:
             ax.text(0.5, 0.5, f'No BUSCO data\n{sample}', 
-                    ha='center', va='center', transform=ax.transAxes, fontsize=16)
+                    ha='center', va='center', transform=ax.transAxes, fontsize=24)
             return
         
         categories = ['S', 'D', 'F', 'M']
@@ -720,20 +720,20 @@ def create_busco_individual_plot(ax, sample, output_dir):
         for bar, percentage in zip(bars, percentages):
             height = bar.get_height()
             ax.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                    f'{percentage:.1f}%', ha='center', va='bottom', fontsize=14, fontweight='bold')
+                    f'{percentage:.1f}%', ha='center', va='bottom', fontsize=20, fontweight='bold')
         
-        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=16, fontweight='bold')
+        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=24, fontweight='bold')
         ax.set_ylim(0, 100)
-        ax.tick_params(axis='x', labelsize=14)
-        ax.tick_params(axis='y', labelsize=14)
-        ax.set_ylabel('Percentage (%)', fontsize=14, labelpad=10)
-        ax.tick_params(axis='x', labelsize=12)
+        ax.tick_params(axis='x', labelsize=20)
+        ax.tick_params(axis='y', labelsize=20)
+        ax.set_ylabel('Percentage (%)', fontsize=22, labelpad=10)
+        ax.tick_params(axis='x', labelsize=18)
         ax.grid(True, alpha=0.3, axis='y')
         ax.set_yticks([0, 20, 40, 60, 80, 100])
         
     except Exception as e:
         ax.text(0.5, 0.5, f'Error processing\n{sample}', 
-                ha='center', va='center', transform=ax.transAxes, fontsize=16)
+                ha='center', va='center', transform=ax.transAxes, fontsize=24)
 
 def create_deamination_individual_plot(ax, sample, output_dir):
     file_path = os.path.join(ROOT_DIR, 'FINALdata', 'deamination_data', sample, 'misincorporation.txt')
@@ -757,7 +757,7 @@ def create_deamination_individual_plot(ax, sample, output_dir):
         ax.plot(x_3p, plot_data['3p_AtoG'], color=color_blue, linewidth=2, alpha=0.8)
         ax.plot(x_3p, plot_data['3p_CtoT'], color=color_red, linewidth=2, alpha=0.8)
         
-        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=16, fontweight='bold')
+        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=24, fontweight='bold')
         ax.set_ylim(0.00, 0.002)
         ax.set_yticks([0.0000, 0.0004, 0.0008, 0.0012, 0.0016, 0.0020])
         ax.set_xlim(-25.5, 25.5)
@@ -766,18 +766,18 @@ def create_deamination_individual_plot(ax, sample, output_dir):
         tick_labels = ['25', '20', '15', '10', '5', '0', '-5', '-10', '-15', '-20', '-25']
         ax.set_xticks(tick_positions)
         ax.set_xticklabels(tick_labels)
-        ax.tick_params(axis='x', labelsize=12)
-        ax.tick_params(axis='y', labelsize=12)
-        ax.set_xlabel('Position', fontsize=12, labelpad=10)
-        ax.set_ylabel('Misincorporation Frequency', fontsize=12, labelpad=10)
-        ax.legend(fontsize=10, loc='upper right')
+        ax.tick_params(axis='x', labelsize=20)
+        ax.tick_params(axis='y', labelsize=20)
+        ax.set_xlabel('Position', fontsize=22, labelpad=10)
+        ax.set_ylabel('Misincorporation Frequency', fontsize=22, labelpad=10)
+        ax.legend(fontsize=18, loc='upper right')
         
         ax.grid(True, alpha=0.3)
         ax.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
         
     except Exception as e:
         ax.text(0.5, 0.5, f'Error processing\n{sample}', 
-                ha='center', va='center', transform=ax.transAxes, fontsize=16)
+                ha='center', va='center', transform=ax.transAxes, fontsize=24)
 
 def create_inserts_individual_plot(ax, sample, output_dir):
     if sample.startswith('WA'):
@@ -806,22 +806,22 @@ def create_inserts_individual_plot(ax, sample, output_dir):
         if np.any(mask_pos):
             ax.plot(x[mask_pos], y[mask_pos], color='#000000', linewidth=2, label='insert')
         
-        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=16, fontweight='bold')
+        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=24, fontweight='bold')
         ax.set_xlim(lower_bound, upper_bound)
         ax.set_ylim(-1, np.max(y[mask_pos]) + np.max(y[mask_pos]) * 0.1)
         
         ax.set_xticks([1] + list(np.arange(100, upper_bound + 1, 100)))
-        ax.tick_params(axis='x', rotation=45, labelsize=12)
-        ax.tick_params(axis='y', labelsize=12)
+        ax.tick_params(axis='x', rotation=45, labelsize=20)
+        ax.tick_params(axis='y', labelsize=20)
         
-        ax.set_xlabel('Insert Length (bp)', fontsize=12, labelpad=10)
-        ax.set_ylabel('Count', fontsize=12, labelpad=10)
+        ax.set_xlabel('Insert Length (bp)', fontsize=22, labelpad=10)
+        ax.set_ylabel('Count', fontsize=22, labelpad=10)
         
         ax.grid(True, alpha=0.3)
         
     except Exception as e:
         ax.text(0.5, 0.5, f'Error processing\n{sample}', 
-                ha='center', va='center', transform=ax.transAxes, fontsize=16)
+                ha='center', va='center', transform=ax.transAxes, fontsize=24)
 
 def create_transrate_individual_plot(ax, sample, output_dir):
     file_path = os.path.join(ROOT_DIR, 'FINALdata', 'transrate_data', 'tr2_assembly', f'{sample}.csv')
@@ -850,18 +850,18 @@ def create_transrate_individual_plot(ax, sample, output_dir):
         for bar, score in zip(bars, scores):
             height = bar.get_height()
             ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                    f'{score:.3f}', ha='center', va='bottom', fontsize=12, fontweight='bold')
+                    f'{score:.3f}', ha='center', va='bottom', fontsize=20, fontweight='bold')
         
-        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=16, fontweight='bold')
+        ax.set_title(f'{get_real_sample_name(sample)}', fontsize=24, fontweight='bold')
         ax.set_ylim(0, 1.1)
         
         ax.set_xticks(x_pos)
-        ax.set_xticklabels(score_labels, fontsize=12)
-        ax.tick_params(axis='y', labelsize=12)
+        ax.set_xticklabels(score_labels, fontsize=20)
+        ax.tick_params(axis='y', labelsize=20)
         
-        ax.set_ylabel('Score', fontsize=12, labelpad=10)
+        ax.set_ylabel('Score', fontsize=22, labelpad=10)
         ax.grid(True, alpha=0.3, axis='y')
         
     except Exception as e:
         ax.text(0.5, 0.5, f'Error processing\n{sample}', 
-                ha='center', va='center', transform=ax.transAxes, fontsize=16)
+                ha='center', va='center', transform=ax.transAxes, fontsize=24)
