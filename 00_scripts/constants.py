@@ -83,6 +83,7 @@ FIGSIZE = {
 
 FIGSIZE_REP              = (38.48, 13.2) # 52.76 / 4
 FIGSIZE_TRANSRATE_SCORES = (16,    12)
+FIGSIZE_BUSCO_SCORES     = (16,    12)
 FIGSIZE_CONCAT           = (38.48, 52.76) # tried to make this proportional to an 8x11 page
 
 TITLE_SUFFIX = {

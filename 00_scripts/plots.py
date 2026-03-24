@@ -9,6 +9,7 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 import pandas as pd
 from constants import *
+from matplotlib.patches import Patch
 
 def sample_type(sample):
     name = SAMPLE_NAMES.get(sample, '')
@@ -194,6 +195,41 @@ def draw_busco_cat(ax, category, category_label, fonts, show_ylabel=True, **_):
     ax.grid(True, alpha=0.3, axis='y')
 
 
+def draw_busco_all(ax, category, category_label, fonts, show_ylabel=True, **_):
+    cache  = get_cache()
+    groups = {t: [] for t in TYPE_ORDER}
+
+    for s in SAMPLES:
+        val = cache.get(s, {}).get('busco', {}).get(category)
+        if val is not None:
+            groups[sample_type(s)].append((s, val))
+    for t in TYPE_ORDER:
+        groups[t].sort(key=lambda x: x[1])
+
+    x_pos, colors, values, labels = [], [], [], []
+    x = 0
+    for t in TYPE_ORDER:
+        for s, val in groups[t]:
+            x_pos.append(x)
+            colors.append(COLORS[t])
+            values.append(val)
+            labels.append(SAMPLE_NAMES.get(s, s).split('-')[0])
+            x += 1
+        x += 1
+
+    ax.bar(x_pos, values, color=colors, alpha=0.85, zorder=3)
+    ax.set_title(category_label, fontsize=fonts['title'], fontweight='bold', pad=fonts['title_pad'])
+    ax.set_ylim(0, 110)
+    ax.set_yticks([0, 20, 40, 60, 80, 100])
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(labels, fontsize=fonts['tick_label'], rotation=45, ha='right', rotation_mode='anchor')
+    ax.tick_params(axis='y', labelsize=fonts['tick_label'])
+    ax.tick_params(axis='x', pad=6)
+    if show_ylabel:
+        ax.set_ylabel('Percentage (%)', fontsize=fonts['axis_label'], labelpad=fonts['labelpad'])
+    ax.grid(True, alpha=0.3, axis='y', zorder=0)
+
+
 def draw_deamination(ax, sample, fonts, title=None, show_ylabel=True, show_legend=True, linewidth=2, **_):
     data = get_cache().get(sample, {}).get('deamination')
     x5   = list(range(1, 26))
@@ -370,9 +406,8 @@ def plot_rep(plot_type, output_dir):
 # transrate needed its own function because it has one that is all the individuals combined
 # and this is a seperate one thats grouped by score type. snuc scov etc 
 def plot_transrate_scores(output_dir):
-    from matplotlib.patches import Patch
 
-    print(f"{'Transrate':<12} - all samples")
+    print(f"{'Transrate':<12} - scores")
     sub_dir = os.path.join(output_dir, 'transrate')
     os.makedirs(sub_dir, exist_ok=True)
 
@@ -391,6 +426,29 @@ def plot_transrate_scores(output_dir):
     plt.tight_layout(pad=2.5)
     plt.savefig(os.path.join(sub_dir, 'transrate_scores.png'), dpi=300, bbox_inches='tight')
     plt.close()
+
+def plot_busco_categories(output_dir):
+
+    print(f"{'Busco':<12} - categories")
+    sub_dir = os.path.join(output_dir, 'busco')
+    os.makedirs(sub_dir, exist_ok=True)
+
+    fig, axes = plt.subplots(2, 2, figsize=FIGSIZE_BUSCO_SCORES)
+    for ax, (cat, label) in zip(axes.flatten(), zip(BUSCO_CATEGORIES, BUSCO_LABELS)):
+        draw_busco_all(ax, cat, label.replace('\n', ' '), FONTS_IND)
+
+    legend_patches = [
+        Patch(facecolor=COLORS['fresh'],    alpha=0.85, label='Fresh'),
+        Patch(facecolor=COLORS['silica'],   alpha=0.85, label='Silica'),
+        Patch(facecolor=COLORS['herbaria'], alpha=0.85, label='Herbarium'),
+    ]
+    fig.legend(handles=legend_patches, fontsize=FONTS_IND['legend'],
+               loc='upper center', ncol=3, framealpha=0.8, bbox_to_anchor=(0.5, 1.01))
+
+    plt.tight_layout(pad=2.5)
+    plt.savefig(os.path.join(sub_dir, 'busco_categories.png'), dpi=300, bbox_inches='tight')
+    plt.close()
+
 
 # this is figure 2 (i think 2?) with all of the rep plots in 4 rows.
 def concat_rep(output_dir, plot_types):

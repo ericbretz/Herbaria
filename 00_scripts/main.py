@@ -7,6 +7,7 @@ from plots import (
     plot_rep, plot_individual,
     concat_rep,
     plot_transrate_scores,
+    plot_busco_categories,
 )
 
 # comma seperate which of these you want to run
@@ -40,6 +41,8 @@ def main():
             concat_rep(args.output_dir, plot_types)
         if 'transrate' in plot_types:
             plot_transrate_scores(args.output_dir)
+        if 'busco' in plot_types:
+            plot_busco_categories(args.output_dir)
 
     if not args.representative_only:
         for pt in plot_types:
